@@ -1,0 +1,29 @@
+{
+    "Version": "0.1",
+    "Sections": [
+        {
+            "Name": "General",
+            "Description": "Settings for Read a Book",
+            "IsAdvanced": false,
+            "Keys": [
+                {
+                    "Min": 0,
+                    "Max": 100,
+                    "Value": 0,
+                    "Name": "LitInit",
+                    "Description": "Initial value of your literacy skill",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.SliderIntKey"
+                },
+                {
+                    "Value": "K",
+                    "Name": "LitKey",
+                    "Description": "Key to display current literacy skill level",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.TextKey"
+                }
+            ],
+            "$version": "v1"
+        }
+    ]
+}

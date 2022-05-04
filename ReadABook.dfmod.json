@@ -1,0 +1,13 @@
+{
+    "ModTitle": "Read a Book",
+    "ModVersion": "0.1",
+    "ModAuthor": "Neavirunes",
+    "ContactInfo": "",
+    "DFUnity_Version": "0.13.5",
+    "ModDescription": "Learn skill points from books",
+    "GUID": "301ef515-0538-4dfb-ab3a-2ec39b18f026",
+    "Files": [
+        "Assets/Game/Mods/ReadABook/modsettings.json",
+        "Assets/Game/Mods/ReadABook/Scripts/ReadABook.cs"
+    ]
+}
