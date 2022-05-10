@@ -18,13 +18,10 @@ using DaggerfallWorkshop.Utility;
 
 namespace ReadABook
 {
-	public class ReadABookMod : MonoBehaviour
+	public class ReadABookMod : MonoBehaviour, IHasModSaveData
 	{
-		public static int BookCheck;
 		public static int OpenCheck;
-		public static List<BookData> items;
 		public static string BookName;
-		public static string text;
 
 		static float CurStatF1;
 		static float CurStatF2;
@@ -42,33 +39,40 @@ namespace ReadABook
 		static int ReadCheck;
 		static Mod RABMod;
 		static ModSettings Settings;
+		static ReadABookMod ModInstance;
 		static string BookStatus;
 		static string LiteracyKey;
 		static string UhOh;
 		static string Whoopie;
+
+		// - Save Variables ----------------------------------------------------
+		static int LiteracySkill;
+		static float[] SkillsCeiling;
+		static float[] SkillsForget;
+		static float[] SkillsLearn;
+		static int[] SkillsMods;
+		static List<string> BooksRead;
+		// ---------------------------------------------------------------------
 
 		[Invoke(StateManager.StateTypes.Start, 0)]
 		public static void Init(InitParams initParams)
 		{
 			RABMod = initParams.Mod;
 			var go = new GameObject(RABMod.Title);
-			go.AddComponent<ReadABookMod>();
+			ModInstance = go.AddComponent<ReadABookMod>();
 
-			List<BookData> items = new List<BookData>()
+			LiteracySkill = Settings.GetValue<int>("General", "LitInit");
+			SkillsCeiling = new float[35];
+			SkillsForget = new float[35];
+			SkillsLearn = new float[35];
+			SkillsMods = new int[35];
+			BooksRead = new List<string>();
+			for (IndexM = 0; IndexM < 256; IndexM++)
 			{
-				new BookData()
-				{
-					LiteracySkill = 0,
-					SkillsCeiling = new float[35],
-					SkillsForget = new float[35],
-					SkillsLearn = new float[35],
-					SkillsMods = new int[35],
-					BooksRead = new List<string>()
-				}
-			};
+				BooksRead.Add("");
+			}
 
-			RABSaveData SaveInstance = new RABSaveData();
-			RABMod.SaveDataInterface = SaveInstance;
+			RABMod.SaveDataInterface = ModInstance;
 		}
 
 		void Awake()
@@ -81,18 +85,6 @@ namespace ReadABook
 		{
 			if (GameManager.Instance.StateManager.CurrentState == StateManager.StateTypes.Game)
 			{
-				if (BookCheck == 1)
-				{
-					items[0].LiteracySkill = Settings.GetValue<int>("General", "LitInit");
-
-					for(IndexM = 0; IndexM < 256; IndexM++)
-					{
-						items[0].BooksRead.Add("");
-					}
-
-					BookCheck = 0;
-				}
-
 				if (CheckDays == 1)
 				{
 					DaggerfallDateTime BookTime = DaggerfallUnity.Instance.WorldTime.Now;
@@ -101,9 +93,9 @@ namespace ReadABook
 					{
 						for (IndexU = 0; IndexU < 35; IndexU++)
 						{
-							if (items[0].SkillsForget[IndexU] > (float)0)
+							if (SkillsForget[IndexU] > (float)0)
 							{
-								items[0].SkillsForget[IndexU] -= (float)1;
+								SkillsForget[IndexU] -= (float)1;
 							}
 						}
 
@@ -119,9 +111,9 @@ namespace ReadABook
 					{
 						for (IndexR = 0; IndexR < 256; IndexR++)
 						{
-							if (items[0].BooksRead[IndexR] == String.Empty)
+							if (BooksRead[IndexR] == String.Empty)
 							{
-								items[0].BooksRead[IndexR] = BookName;
+								BooksRead[IndexR] = BookName;
 								ReadCheck = 1;
 
 								IndexR = 256;
@@ -147,12 +139,12 @@ namespace ReadABook
 				{
 					for (IndexR = 0; IndexR < 256; IndexR++)
 					{
-						if (items[0].BooksRead[IndexR] != String.Empty)
+						if (BooksRead[IndexR] != String.Empty)
 						{
-							BookName = items[0].BooksRead[IndexR];
+							BookName = BooksRead[IndexR];
 							BookStart(BookName);
 
-							items[0].BooksRead[IndexR] = String.Empty;
+							BooksRead[IndexR] = String.Empty;
 						}
 					}
 
@@ -166,7 +158,7 @@ namespace ReadABook
 
 				if (Input.GetKeyUp(KeyCode.K))
 				{
-					DaggerfallUI.AddHUDText(string.Format("Your literacy skill is {0}%", items[0].LiteracySkill));
+					DaggerfallUI.AddHUDText(string.Format("Your literacy skill is {0}%", LiteracySkill));
 				}
 			}
 			else if (GameManager.Instance.StateManager.CurrentState == StateManager.StateTypes.UI)
@@ -799,7 +791,7 @@ namespace ReadABook
 			CurStat1 += CurStat2;
 			CurStatF1 = (float)Convert.ChangeType(CurStat1, typeof(float));
 			CurStatF1 /= 2;
-			items[0].SkillsCeiling[Index] = CurStatF1;
+			SkillsCeiling[Index] = CurStatF1;
 
 			if (CurSkill < CurStat1)
 			{
@@ -809,20 +801,20 @@ namespace ReadABook
 				CurStat1 *= 3;
 				CurStatF1 = (float)Convert.ChangeType(CurStat1, typeof(float));
 				CurStatF1 /= 4;
-				items[0].SkillsForget[Index] = CurStatF1;
+				SkillsForget[Index] = CurStatF1;
 
 				CurStat1 = player.Stats.LiveLuck;
 				CurStat2 = Stat;
 				CurStat1 += CurStat2;
 				CurStatF1 = (float)Convert.ChangeType(CurStat1, typeof(float));
 				CurStatF1 /= 4;
-				items[0].SkillsLearn[Index] = CurStatF1;
+				SkillsLearn[Index] = CurStatF1;
 
-				if (items[0].SkillsLearn[Index] < items[0].SkillsForget[Index])
+				if (SkillsLearn[Index] < SkillsForget[Index])
 				{
 					DaggerfallDateTime BookTime = DaggerfallUnity.Instance.WorldTime.Now;
 
-					CurStatF1 = items[0].SkillsLearn[Index];
+					CurStatF1 = SkillsLearn[Index];
 					CurStatF1 = (50 - CurStatF1) + 1;
 					CurStatF1 /= 10;
 					CurStatF2 = CurStatF1;
@@ -864,8 +856,8 @@ namespace ReadABook
 
 					if (Rando <= CurStat1)
 					{
-						items[0].SkillsMods[Index] += 1;
-						player.Skills.AssignMods(items[0].SkillsMods);
+						SkillsMods[Index] += 1;
+						player.Skills.AssignMods(SkillsMods);
 
 						LevelledUp = 1;
 					}
@@ -881,9 +873,9 @@ namespace ReadABook
 
 				if (LevelledUp == 1)
 				{
-					items[0].LiteracySkill += 1;
+					LiteracySkill += 1;
 
-					if (items[0].LiteracySkill < 100)
+					if (LiteracySkill < 100)
 					{
 						DaggerfallUI.AddHUDText(string.Format("Your literacy skill increased"));
 					}
@@ -924,67 +916,60 @@ namespace ReadABook
 			StatusMessage.AllowCancel = false;
 			StatusMessage.Show();
 		}
-	}
-
-	public class BookData
-	{
-		public int LiteracySkill { get; set; }
-		public float[] SkillsCeiling { get; set; }
-		public float[] SkillsForget { get; set; }
-		public float[] SkillsLearn { get; set; }
-		public int[] SkillsMods { get; set; }
-		public List<string> BooksRead { get; set; }
-	}
-
-	[FullSerializer.fsObject("v1")]
-	public class RABSaveData : IHasModSaveData
-	{
-		public string Text;
-		public List<BookData> Items;
 
 		public Type SaveDataType
 		{
-			get { return typeof(RABSaveData); }
+			get { return typeof(BookData); }
 		}
 
 		public object NewSaveData()
 		{
-			ReadABookMod.BookCheck = 1;
-
-			return new RABSaveData
+			return new BookData
 			{
-				Text = "Read a Book",
-				Items = new List<BookData>()
-				{
-					new BookData()
-					{
-						LiteracySkill = 0,
-						SkillsCeiling = new float[35],
-						SkillsForget = new float[35],
-						SkillsLearn = new float[35],
-						SkillsMods = new int[35],
-						BooksRead = new List<string>()
-					}
-				}
+				literacySkill = LiteracySkill,
+				skillsCeiling = SkillsCeiling,
+				skillsForget = SkillsForget,
+				skillsLearn = SkillsLearn,
+				skillsMods = SkillsMods,
+				booksRead = BooksRead
 			};
 		}
 
 		public object GetSaveData()
 		{
-			return new RABSaveData
+			return new BookData
 			{
-				Text = ReadABookMod.text,
-				Items = ReadABookMod.items
+				literacySkill = LiteracySkill,
+				skillsCeiling = SkillsCeiling,
+				skillsForget = SkillsForget,
+				skillsLearn = SkillsLearn,
+				skillsMods = SkillsMods,
+				booksRead = BooksRead
 			};
 		}
 
 		public void RestoreSaveData(object saveData)
 		{
-			var myModSaveData = (RABSaveData)saveData;
+			var myModSaveData = (BookData)saveData;
 
-			ReadABookMod.text = myModSaveData.Text;
-			ReadABookMod.items = myModSaveData.Items;
+			LiteracySkill = myModSaveData.literacySkill;
+			SkillsCeiling = myModSaveData.skillsCeiling;
+			SkillsForget = myModSaveData.skillsForget;
+			SkillsLearn = myModSaveData.skillsLearn;
+			SkillsMods = myModSaveData.skillsMods;
+			BooksRead = myModSaveData.booksRead;
 		}
+	}
+
+	[FullSerializer.fsObject("v1")]
+	public class BookData
+	{
+		public int literacySkill { get; set; }
+		public float[] skillsCeiling { get; set; }
+		public float[] skillsForget { get; set; }
+		public float[] skillsLearn { get; set; }
+		public int[] skillsMods { get; set; }
+		public List<string> booksRead { get; set; }
 	}
 }
 
