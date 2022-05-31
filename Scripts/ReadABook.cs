@@ -229,6 +229,12 @@ namespace ReadABook
 							BookProcess(14, player.Stats.LivePersonality, "mercantile");
 							break;
 						case 'i':
+							if (name.Length == 28)                          // Biography of Queen Barenziah
+							{
+								BookProcess(2, player.Stats.LivePersonality, "streetwise");
+								return;
+							}
+
 							switch (name[34])
 							{
 								case '1':									// Biography of Queen Barenziah, Vol 1
@@ -243,11 +249,18 @@ namespace ReadABook
 								default:
 									break;
 							}
+
 							break;
 						case 'r':
 							switch (name[3])
 							{
 								case 'i':
+									if (name.Length == 27)                  // Brief History of the Empire
+									{
+										BookProcess(20, player.Stats.LiveSpeed, "dodging");
+										return;
+									}
+
 									switch (name[34])
 									{
 										case '1':							// Brief History of the Empire, Part 1
@@ -265,6 +278,7 @@ namespace ReadABook
 										default:
 											break;
 									}
+
 									break;
 								case 'o':									// Broken Diamonds
 									BookProcess(19, player.Stats.LiveAgility, "backstabbing");
@@ -293,6 +307,12 @@ namespace ReadABook
 							BookProcess(33, player.Stats.LiveAgility, "archery");
 							break;
 						case 'o':
+							if (name.Length == 12)                          // Fools' Ebony
+							{
+								BookProcess(0, player.Stats.LiveIntelligence, "medical");
+								return;
+							}
+
 							switch (name[23])
 							{
 								case 'O':									// Fools' Ebony, Part the Oneth
@@ -330,6 +350,7 @@ namespace ReadABook
 								default:
 									break;
 							}
+
 							break;
 						case 'r':
 							switch (name[2])
@@ -381,6 +402,12 @@ namespace ReadABook
 					BookProcess(2, player.Stats.LivePersonality, "streetwise");
 					break;
 				case 'K':
+					if (name.Length == 11)                                  // King Edward
+					{
+						BookProcess(1, player.Stats.LivePersonality, "etiquette");
+						return;
+					}
+
 					switch (name[18])
 					{
 						case 'I':											// King Edward, Part I
@@ -398,6 +425,7 @@ namespace ReadABook
 						default:
 							break;
 					}
+
 					break;
 				case 'L':
 					BookProcess(1, player.Stats.LivePersonality, "etiquette");// Legal Basics
@@ -443,7 +471,7 @@ namespace ReadABook
 								case 'L':									// On Lycanthropy
 									BookProcess(25, player.Stats.LiveWillpower, "alteration");
 									break;
-								case 'O':									;// On Oblivion
+								case 'O':									// On Oblivion
 									BookProcess(9, player.Stats.LiveIntelligence, "daedric");
 									break;
 								default:
@@ -568,6 +596,12 @@ namespace ReadABook
 							BookProcess(4, player.Stats.LiveIntelligence, "orcish");
 							break;
 						case 'R':
+							if (name.Length == 18)                          // The Real Barenziah
+							{
+								BookProcess(1, player.Stats.LivePersonality, "etiquette");
+								return;
+							}
+
 							switch (name[25])
 							{
 								case 'I':									// The Real Barenziah, Part I
@@ -585,6 +619,7 @@ namespace ReadABook
 								default:
 									break;
 							}
+
 							break;
 						case 'S':
 							switch (name[5])
