@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DaggerfallConnect;
 using DaggerfallWorkshop;
 using DaggerfallWorkshop.Game;
 using DaggerfallWorkshop.Game.Entity;
@@ -39,6 +40,7 @@ namespace ReadABook
 		static int ReadCheck;
 		static Mod RABMod;
 		static ModSettings Settings;
+		static PlayerEntity player;
 		static ReadABookMod ModInstance;
 		static string BookStatus;
 		static string LiteracyKey;
@@ -50,7 +52,6 @@ namespace ReadABook
 		static float[] SkillsCeiling;
 		static float[] SkillsForget;
 		static float[] SkillsLearn;
-		static int[] SkillsMods;
 		static List<string> BooksRead;
 		// ---------------------------------------------------------------------
 
@@ -65,7 +66,6 @@ namespace ReadABook
 			SkillsCeiling = new float[35];
 			SkillsForget = new float[35];
 			SkillsLearn = new float[35];
-			SkillsMods = new int[35];
 			BooksRead = new List<string>();
 			for (IndexM = 0; IndexM < 256; IndexM++)
 			{
@@ -179,6 +179,9 @@ namespace ReadABook
 
 			Settings = RABMod.GetSettings();
 			LiteracyKey = Settings.GetValue<string>("General", "LitKey");
+
+			player = GameManager.Instance.PlayerEntity;
+
 			UIWindowFactory.RegisterCustomUIWindow(UIWindowType.Inventory, typeof(ReadABookWindow));
 
 			Debug.Log("Finished mod init: Read A Book");
@@ -186,8 +189,6 @@ namespace ReadABook
 
 		public static void BookStart(string name)
 		{
-			PlayerEntity player = GameManager.Instance.PlayerEntity;
-
 			switch (name[0])
 			{
 				case 'A':
@@ -670,8 +671,6 @@ namespace ReadABook
 
 		public static void BookProcess(int Index, int Stat, string Skill)
 		{
-			PlayerEntity player = GameManager.Instance.PlayerEntity;
-
 			//If you uncomment these, make sure to fix the index values
 			//switch (Index)
 			//{
@@ -891,9 +890,7 @@ namespace ReadABook
 
 					if (Rando <= CurStat1)
 					{
-						SkillsMods[Index] += 1;
-						player.Skills.AssignMods(SkillsMods);
-
+						player.TallySkill((DFCareer.Skills)Index, 1);
 						LevelledUp = 1;
 					}
 					else
@@ -965,7 +962,6 @@ namespace ReadABook
 				skillsCeiling = SkillsCeiling,
 				skillsForget = SkillsForget,
 				skillsLearn = SkillsLearn,
-				skillsMods = SkillsMods,
 				booksRead = BooksRead
 			};
 		}
@@ -978,7 +974,6 @@ namespace ReadABook
 				skillsCeiling = SkillsCeiling,
 				skillsForget = SkillsForget,
 				skillsLearn = SkillsLearn,
-				skillsMods = SkillsMods,
 				booksRead = BooksRead
 			};
 		}
@@ -991,7 +986,6 @@ namespace ReadABook
 			SkillsCeiling = myModSaveData.skillsCeiling;
 			SkillsForget = myModSaveData.skillsForget;
 			SkillsLearn = myModSaveData.skillsLearn;
-			SkillsMods = myModSaveData.skillsMods;
 			BooksRead = myModSaveData.booksRead;
 		}
 	}
@@ -1003,7 +997,6 @@ namespace ReadABook
 		public float[] skillsCeiling { get; set; }
 		public float[] skillsForget { get; set; }
 		public float[] skillsLearn { get; set; }
-		public int[] skillsMods { get; set; }
 		public List<string> booksRead { get; set; }
 	}
 }
